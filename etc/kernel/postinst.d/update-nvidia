@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+
+# Set this to the exact path of the nvidia driver you plan to use
+# It is recommended to use a symlink here so that this script doesn't
+# have to be modified when you change driver versions.
+DRIVER=/usr/src/nvidia-driver
+
+
+# Build new driver if it doesn't exist
+if [ -e /lib/modules/$1/kernel/drivers/video/nvidia.ko ] ; then
+    echo "NVIDIA driver already exists for this kernel." >&2
+else
+    echo "Building NVIDIA driver for kernel $1" >&2
+    sh $DRIVER -K -k $1 -s -n 2>1 > /dev/null
+
+    if [ -e /lib/modules/$1/kernel/drivers/video/nvidia.ko ] ; then
+        echo "   SUCCESS: Driver installed for kernel $1" >&2
+    else
+        echo "   FAILURE: See /var/log/nvidia-installer.log" >&2
+    fi
+fi
+
+exit 0
